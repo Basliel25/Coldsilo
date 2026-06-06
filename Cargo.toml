@@ -5,3 +5,14 @@ edition = "2024"
 description = "Lightweight CLI for cold storage across a pool of cheap USB sticks"
 
 [dependencies]
+directories = "5"
+serde = "1.0.228"
+sha2 = "0.10"
+thiserror = "1"
+time = "0.3"
+toml = "0.8"
+uuid = "1.23.2"
+
+[[bin]]
+name = "coldsilo"
+path = "src/bin/coldsilo.rs"
