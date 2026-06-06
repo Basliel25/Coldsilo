@@ -1,6 +1,7 @@
 [package]
-name = "coldsilo"
+name = "coldsilo-cli"
 version = "0.1.0"
 edition = "2024"
+description = "Lightweight CLI for cold storage across a pool of cheap USB sticks"
 
 [dependencies]
