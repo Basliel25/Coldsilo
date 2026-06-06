@@ -85,4 +85,7 @@ pub fn mounted_disks(scan_roots: &[PathBuf]) -> HashMap<DiskId, PathBuf> {
     map
 }
 
-
+fn read_marker(path: &Path) -> Result<DiskMarker, Error> {
+    let contents = fs::read_to_string(path)?;
+    Ok(toml::from_str(&contents)?)
+}
