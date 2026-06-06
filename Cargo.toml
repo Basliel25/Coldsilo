@@ -6,12 +6,12 @@ description = "Lightweight CLI for cold storage across a pool of cheap USB stick
 
 [dependencies]
 directories = "5"
-serde = "1.0.228"
+serde = {version = "1.0.228", features = ["derive"]}
 sha2 = "0.10"
 thiserror = "1"
-time = "0.3"
+time = {version = "0.3", features = ["serde"]}
 toml = "0.8"
-uuid = "1.23.2"
+uuid = {version = "1.23.2", features = ["v4", "serde"]}
 
 [[bin]]
 name = "coldsilo"
