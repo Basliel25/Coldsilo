@@ -98,10 +98,6 @@ mod tests {
     
     /// Three tests:
     /// init writes a marker that reads back identically
-    /// different stick tests like :
-    ///         - good
-    ///         - corrupt
-    ///         - nonexistent
     #[test]
     fn init_reads_identicall_roundtrip() {
         let stick = tempdir().unwrap();
@@ -114,7 +110,6 @@ mod tests {
         assert_eq!(read_back.label, "notHomework-1");
 
     }
-    
     /// a planted stik keyed by disk_id with mount path
     #[test]
     fn planted_stick_id_and_mount_path(){
@@ -130,7 +125,30 @@ mod tests {
         assert_eq!(found.len(), 1);
         assert_eq!(found.get(&marker.diskId), Some(&mount));
     }
+    /// different stick tests like :
+    ///         - good
+    ///         - corrupt
+    ///         - nonexistent
     #[test]
-    fn three_stick_pool_test() {todo!()}
+    fn three_stick_pool_test() {
+
+        let root = tempdir().unwrap();
+
+        // good stick
+        let good = root.path().join("good");
+        std::fs::create_dir(&good).unwrap();
+        let good_marker = init(&good, "good".into()).unwrap();
+
+        // one corrupt stick
+        let corrupt = root.path().join("corrupt");
+        std::fs::create_dir(corrupt.join(MARKER_DIR).as_path()).unwrap_or_default();
+        std::fs::create_dir_all(corrupt.join(MARKER_DIR)).unwrap();
+        std::fs::write(corrupt.join(MARKER_DIR).join(MARKER_FILE), "not toml {{{").unwrap();
+
+        // absent root
+        let absent = root.path().join("doesnt exist");
+
+
+    }
 
 }
