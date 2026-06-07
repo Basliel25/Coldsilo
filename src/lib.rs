@@ -5,4 +5,4 @@ pub mod ops;
 pub mod query;
 pub mod scrub;
 
-pub use std::error::Error;
+pub use crate::error::Error;
