@@ -10,7 +10,7 @@ use crate::disk::DiskId;
 use crate::error::Error;
 
 /// An entry per offloaded file
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Entry {
     pub original_path: PathBuf, // where the symlink now sits at
     pub rel_path: PathBuf, // where the data lives on the stickk
@@ -23,7 +23,7 @@ pub struct Entry {
 
 /// A complete manifest of every entry,
 /// a flat vector that serializes to toml
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct Manifest {
     pub entries: Vec<Entry>,
 }
@@ -79,7 +79,22 @@ mod tests {
             offloaded_at: OffsetDateTime::now_utc(),
         }
     } 
-    fn manifest_identical_after_roundtrip() {}
+    #[test]
+    fn manifest_identical_after_roundtrip() { 
+       let stick = tempdir().unwrap();
+       let path = stick.path().join("manifest.toml");
+       let disk_id = DiskId::new();
+
+       let entry = dummy_entry(disk_id, "yomama");
+       let mut manifest = Manifest::default();
+
+       manifest.add(entry);
+       manifest.save(&path).unwrap();
+
+       let manifest_loaded = Manifest::load(&path).unwrap();
+
+       assert_eq!(manifest, manifest_loaded);
+    }
     fn manifest_empty_on_load_path_nonexistsent() {todo!()} 
     fn grouping_different_diskId_correct_count() {todo!()} 
 
