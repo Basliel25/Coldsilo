@@ -8,6 +8,7 @@ description = "Lightweight CLI for cold storage across a pool of cheap USB stick
 directories = "5"
 serde = {version = "1.0.228", features = ["derive"]}
 sha2 = "0.10"
+tempfile = "3.27.0"
 thiserror = "1"
 time = {version = "0.3", features = ["serde"]}
 toml = "0.8"

@@ -78,7 +78,7 @@ pub fn mounted_disks(scan_roots: &[PathBuf]) -> HashMap<DiskId, PathBuf> {
             }
             // If corrupt or missing disk continues scanning the pool
             if let Ok(m) = read_marker(&marker) {
-                map.insert(m.disk_id, mount);
+                map.insert(m.diskId, mount);
             }
         }
     }
@@ -88,4 +88,25 @@ pub fn mounted_disks(scan_roots: &[PathBuf]) -> HashMap<DiskId, PathBuf> {
 fn read_marker(path: &Path) -> Result<DiskMarker, Error> {
     let contents = fs::read_to_string(path)?;
     Ok(toml::from_str(&contents)?)
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    
+    /// Three tests:
+    /// init writes a marker that reads back identically
+    /// a planted stik keyed by disk_id with mount path
+    /// different stick tests like :
+    ///         - good
+    ///         - corrupt
+    ///         - nonexistent
+    #[test]
+    fn init_reads_identicall_roundtrip() {todo!()}
+    #[test]
+    fn planted_stick_id_and_mount_path(){todo!()}
+    #[test]
+    fn three_stick_pool_test() {todo!()}
+
 }
