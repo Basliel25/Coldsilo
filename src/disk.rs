@@ -98,7 +98,6 @@ mod tests {
     
     /// Three tests:
     /// init writes a marker that reads back identically
-    /// a planted stik keyed by disk_id with mount path
     /// different stick tests like :
     ///         - good
     ///         - corrupt
@@ -115,8 +114,22 @@ mod tests {
         assert_eq!(read_back.label, "notHomework-1");
 
     }
+    
+    /// a planted stik keyed by disk_id with mount path
     #[test]
-    fn planted_stick_id_and_mount_path(){todo!()}
+    fn planted_stick_id_and_mount_path(){
+
+        let root = tempdir().unwrap();
+        let mount = root.path().join("notHomework-1");
+
+        std::fs::create_dir(&mount).unwrap();
+        let marker = init(&mount, "notHomework-1".into()).unwrap();
+
+        let found = mounted_disks(&[root.path().to_path_buf()]);
+
+        assert_eq!(found.len(), 1);
+        assert_eq!(found.get(&marker.diskId), Some(&mount));
+    }
     #[test]
     fn three_stick_pool_test() {todo!()}
 
