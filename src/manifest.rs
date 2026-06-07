@@ -27,10 +27,19 @@ pub struct Manifest {
     pub entries: Vec<Entry>,
 }
 
-impl manifest {
-    pub fn add(&mut self, entry: Entry) {todo!()}
+impl Manifest {
+    pub fn add(&mut self, entry: Entry) {
+        self.entries.push(entry);
+    }
 
     // Group by disk
+    pub fn groub_by_disk(&self) -> HashMap<DiskId, Vec<&Entry>> {
+        let mut map: HashMap<DiskId, Vec<&Entry>> = HashMap::new();
+        for e in &self.entries {
+            map.entry(e.disk_id).or_default().push(e);
+        }
+        map
+    }
     // load from an explicit path
     //
     // Save manifest
