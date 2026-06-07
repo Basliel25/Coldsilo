@@ -148,6 +148,15 @@ mod tests {
         // absent root
         let absent = root.path().join("doesnt exist");
 
+        let found = mounted_disks(&[
+            root.path().to_path_buf(),
+            absent,
+        ]);
+
+        // just the good disk
+        assert_eq!(found.len(), 1);
+        assert!(found.contains_key(&good_marker.diskId));
+
 
     }
 
