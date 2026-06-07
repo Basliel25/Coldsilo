@@ -23,6 +23,7 @@ pub struct Entry {
 
 /// A complete manifest of every entry,
 /// a flat vector that serializes to toml
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Manifest {
     pub entries: Vec<Entry>,
 }
@@ -41,7 +42,45 @@ impl Manifest {
         map
     }
     // load from an explicit path
-    //
-    // Save manifest
+    pub fn load(path: &Path) -> Result<Self, Error> {
+       match fs::read_to_string(path) {
+            Ok(s) => Ok(toml::from_str(&s)?),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                Ok(Manifest::default())
+            }
+            Err(e) => Err(e.into()),
+       }
+    }
+    // Save path
+    pub fn save(&self, path: &Path) -> Result<(), Error> {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::write(path, toml::to_string_pretty(self)?)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::disk::DiskId;
+    use std::path::PathBuf;
+    use time::OffsetDateTime;
+
+    use tempfile::tempdir;
+
+    fn dummy_entry(disk_id: DiskId, name: &str) -> Entry{
+       Entry {
+            disk_id,
+            original_path: PathBuf::from(format!("/home/Music/{name}")),
+            rel_path: PathBuf::from(format!("Music/{name}")),
+            sha256: "deadbeat".repeat(3),
+            offloaded_at: OffsetDateTime::now_utc(),
+        }
+    } 
+    fn manifest_identical_after_roundtrip() {}
+    fn manifest_empty_on_load_path_nonexistsent() {todo!()} 
+    fn grouping_different_diskId_correct_count() {todo!()} 
 
 }
