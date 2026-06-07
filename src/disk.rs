@@ -94,6 +94,7 @@ fn read_marker(path: &Path) -> Result<DiskMarker, Error> {
 mod tests {
 
     use super::*;
+    use tempfile::tempdir;
     
     /// Three tests:
     /// init writes a marker that reads back identically
@@ -103,7 +104,17 @@ mod tests {
     ///         - corrupt
     ///         - nonexistent
     #[test]
-    fn init_reads_identicall_roundtrip() {todo!()}
+    fn init_reads_identicall_roundtrip() {
+        let stick = tempdir().unwrap();
+        let written = init(stick.path(), "notHomework-1".into()).unwrap();
+
+        let marker_path = stick.path().join(MARKER_DIR).join(MARKER_FILE);
+        let read_back = read_marker(&marker_path).unwrap();
+
+        assert_eq!(written.diskId, read_back.diskId);
+        assert_eq!(read_back.label, "notHomework-1");
+
+    }
     #[test]
     fn planted_stick_id_and_mount_path(){todo!()}
     #[test]
