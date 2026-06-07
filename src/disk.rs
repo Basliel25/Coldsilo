@@ -27,7 +27,7 @@ impl DiskId {
 pub struct DiskMarker {
     pub diskId: DiskId,
     pub label: String,
-    // Maybe will have to select a time format for serde
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
 }
 
@@ -156,8 +156,6 @@ mod tests {
         // just the good disk
         assert_eq!(found.len(), 1);
         assert!(found.contains_key(&good_marker.diskId));
-
-
     }
 
 }

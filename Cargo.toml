@@ -10,7 +10,8 @@ serde = {version = "1.0.228", features = ["derive"]}
 sha2 = "0.10"
 tempfile = "3.27.0"
 thiserror = "1"
-time = {version = "0.3", features = ["serde"]}
+time = {version = "0.3", features = ["serde-well-known"]}
+timestamp = "0.1.1"
 toml = "0.8"
 uuid = {version = "1.23.2", features = ["v4", "serde"]}
 
