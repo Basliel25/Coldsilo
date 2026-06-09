@@ -46,7 +46,7 @@ impl Manifest {
        match fs::read_to_string(path) {
             Ok(s) => Ok(toml::from_str(&s)?),
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                Ok(Manifest::default())
+Ok(Manifest::default())
             }
             Err(e) => Err(e.into()),
        }
@@ -81,8 +81,8 @@ mod tests {
     } 
     #[test]
     fn manifest_identical_after_roundtrip() { 
-       let stick = tempdir().unwrap();
-       let path = stick.path().join("manifest.toml");
+       let root = tempdir().unwrap();
+       let path = root.path().join("manifest.toml");
        let disk_id = DiskId::new();
 
        let entry = dummy_entry(disk_id, "yomama");
@@ -95,7 +95,15 @@ mod tests {
 
        assert_eq!(manifest, manifest_loaded);
     }
-    fn manifest_empty_on_load_path_nonexistsent() {todo!()} 
+    #[test]
+    fn manifest_empty_on_load_path_nonexistsent() {
+        let root = tempdir().unwrap();
+        let path = root.path().join("doesnt_exist.toml");
+
+        let manifest: Manifest = Manifest::load(&path).unwrap();
+
+        assert!(manifest.entries.is_empty());
+    } 
     fn grouping_different_diskId_correct_count() {todo!()} 
 
 }
