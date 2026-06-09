@@ -30,7 +30,34 @@ pub fn offload(
     disk_mount: &Path,
     rel_path: &Path, 
     manifest: &mut Manifest
-    ) -> Result<Entry, Error> {todo!()}
+    ) -> Result<Entry, Error> {
+
+    // Symlink creation and sanity check
+    let meta = fs::symlink_metadata(source)?;
+
+    // If the file being offloaded is already
+    // a symlink, file is already offloaded
+    if meta.file_type().is_symlink() { 
+        return Err(Error::AlreadyOffloaded(source.to_path_buf()));
+    }
+    // If the file is not a file type
+    // Return as an error
+    if !meta.is_file() {
+        return Err(Error::SourceNotRegularFile(source.to_path_buf()));
+    }
+
+    // Resolving the destination
+    // Checking collision 
+    // Ensure parent directory exists
+    // Create if it doesnt
+    let dest = disk_mount.join(rel_path);
+    if dest.exists() {Err(Error::DestinationExists(dest.to_path_buf()));}
+    if let Some(parent) = dest.parent() {fs::create_dir_all(parent)?;}
+
+    // Copy and hash loop
+    Ok(0)
+
+}
 
 
 
