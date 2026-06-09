@@ -14,7 +14,7 @@ pub enum Error {
 
     // Error Variants
     #[error("Source: {0} is a symlink, file already offloaded")]
-    AleardyOffloaded(PathBuf), // Source is a symlink, already offloaded
+    AlreadyOffloaded(PathBuf), // Source is a symlink, already offloaded
     #[error("Source: {0} is not a regular file")]
     SourceNotRegularFile(PathBuf),
 
