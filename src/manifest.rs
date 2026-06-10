@@ -49,7 +49,7 @@ impl Manifest {
            Ok(s) => {
                let mut manifest:Manifest = toml::from_str(&s)?;
                manifest.path = path.to_path_buf();
-               Ok(toml::from_str(&s)?)
+               Ok(manifest)
            },
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
 Ok(Manifest::default())
