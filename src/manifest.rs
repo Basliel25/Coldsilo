@@ -25,7 +25,8 @@ pub struct Entry {
 /// a flat vector that serializes to toml
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct Manifest {
-    pub path: PathBuf,
+    #[serde(skip)]
+    path: PathBuf,
     pub entries: Vec<Entry>,
 }
 
