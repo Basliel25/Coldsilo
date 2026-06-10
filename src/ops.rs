@@ -6,6 +6,7 @@ use std::fs::{self, File};
 use std::path::Path;
 use std::io::{Read, Write};
 use sha2::{Digest, Sha256};
+use time::OffsetDateTime;
 
 fn hash_file(path: &Path) -> Result<String, Error> {
 
@@ -54,8 +55,49 @@ pub fn offload(
     if dest.exists() {Err(Error::DestinationExists(dest.to_path_buf()));}
     if let Some(parent) = dest.parent() {fs::create_dir_all(parent)?;}
 
-    // Copy and hash loop
-    Ok(0)
+    // Copy and hash during copying
+    let mut source_dir = File::open(source)?;
+    let mut dest_dir = File::create_new(&dest)?;
+    let mut hasher = Sha256::new();
+    let mut buf = [0u8; 65536];
+    loop {
+        let n = source_dir.read(&mut buf)?;
+        if n == 0 {break;}
+        dest_dir.write_all(&buf[..n]);
+        hasher.update(&buf[..n]);
+    }
+    dest_dir.sync_all()?;
+    let written = format!("{:x}", hasher.finalize());
+
+    // Verify the hashes of the destination 
+    // and source are equal
+    let on_disk = hash_file(&dest)?;
+    if on_disk != written {
+        let _ = fs::remove_dir(&dest); // Cleanup and safe exit
+        return Err(Error::HashMismatch{
+            expected:written, 
+            actual: on_disk, 
+            path: dest})
+    }
+
+    // Commiting after offloading completes
+    // delete the files.
+    fs::remove_file(source)?;
+    std::os::unix::fs::symlink(&dest, source);
+
+    let entry = Entry {
+       original_path: source.to_path_buf(),
+       rel_path: rel_path.to_path_buf(),
+       disk_id,
+       sha256: written,
+       offloaded_at: OffsetDateTime::now_utc(),
+    };
+    manifest.add(entry.clone());
+    // Manifest.save 
+    // but offload shouldnt have path thats needed here?
+    // manifest path should be intrinsic?
+
+    Ok(entry)
 
 }
 
