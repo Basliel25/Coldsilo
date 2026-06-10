@@ -52,7 +52,10 @@ impl Manifest {
                Ok(manifest)
            },
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-Ok(Manifest::default())
+                Ok(Manifest {
+                    path: path.to_path_buf(),
+                    entries: Vec::new(),
+                })
             }
             Err(e) => Err(e.into()),
        }
