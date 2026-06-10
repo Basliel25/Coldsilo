@@ -52,7 +52,7 @@ pub fn offload(
     // Ensure parent directory exists
     // Create if it doesnt
     let dest = disk_mount.join(rel_path);
-    if dest.exists() {Err(Error::DestinationExists(dest.to_path_buf()));}
+    if dest.exists() {return Err(Error::DestinationExists(dest.to_path_buf()));}
     if let Some(parent) = dest.parent() {fs::create_dir_all(parent)?;}
 
     // Copy and hash during copying
@@ -63,7 +63,7 @@ pub fn offload(
     loop {
         let n = source_dir.read(&mut buf)?;
         if n == 0 {break;}
-        dest_dir.write_all(&buf[..n]);
+        dest_dir.write_all(&buf[..n])?;
         hasher.update(&buf[..n]);
     }
     dest_dir.sync_all()?;
