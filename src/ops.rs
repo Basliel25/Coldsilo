@@ -73,7 +73,7 @@ pub fn offload(
     // and source are equal
     let on_disk = hash_file(&dest)?;
     if on_disk != written {
-        let _ = fs::remove_dir(&dest); // Cleanup and safe exit
+        let _ = fs::remove_file(&dest); // Cleanup and safe exit
         return Err(Error::HashMismatch{
             expected:written, 
             actual: on_disk, 
@@ -83,7 +83,7 @@ pub fn offload(
     // Commiting after offloading completes
     // delete the files.
     fs::remove_file(source)?;
-    std::os::unix::fs::symlink(&dest, source);
+    std::os::unix::fs::symlink(&dest, source)?;
 
     let entry = Entry {
        original_path: source.to_path_buf(),
