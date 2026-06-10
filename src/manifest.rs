@@ -25,6 +25,7 @@ pub struct Entry {
 /// a flat vector that serializes to toml
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct Manifest {
+    pub path: PathBuf,
     pub entries: Vec<Entry>,
 }
 
@@ -44,7 +45,11 @@ impl Manifest {
     // load from an explicit path
     pub fn load(path: &Path) -> Result<Self, Error> {
        match fs::read_to_string(path) {
-            Ok(s) => Ok(toml::from_str(&s)?),
+           Ok(s) => {
+               let mut manifest:Manifest = toml::from_str(&s)?;
+               manifest.path = path.to_path_buf();
+               Ok(toml::from_str(&s)?)
+           },
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
 Ok(Manifest::default())
             }
@@ -52,11 +57,11 @@ Ok(Manifest::default())
        }
     }
     // Save path
-    pub fn save(&self, path: &Path) -> Result<(), Error> {
-        if let Some(parent) = path.parent() {
+    pub fn save(&self) -> Result<(), Error> {
+        if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent)?;
         }
-        fs::write(path, toml::to_string_pretty(self)?)?;
+        fs::write(&self.path, toml::to_string_pretty(&self.entries)?)?;
         Ok(())
     }
 }
