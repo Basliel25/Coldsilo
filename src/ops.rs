@@ -93,9 +93,7 @@ pub fn offload(
        offloaded_at: OffsetDateTime::now_utc(),
     };
     manifest.add(entry.clone());
-    // Manifest.save 
-    // but offload shouldnt have path thats needed here?
-    // manifest path should be intrinsic?
+    manifest.save()?;
 
     Ok(entry)
 
