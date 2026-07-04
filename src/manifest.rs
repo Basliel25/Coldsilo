@@ -36,7 +36,7 @@ impl Manifest {
     }
 
     // Group by disk
-    pub fn groub_by_disk(&self) -> HashMap<DiskId, Vec<&Entry>> {
+    pub fn group_by_disk(&self) -> HashMap<DiskId, Vec<&Entry>> {
         let mut map: HashMap<DiskId, Vec<&Entry>> = HashMap::new();
         for e in &self.entries {
             map.entry(e.disk_id).or_default().push(e);
@@ -65,7 +65,7 @@ impl Manifest {
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent)?;
         }
-        fs::write(&self.path, toml::to_string_pretty(&self.entries)?)?;
+        fs::write(&self.path, toml::to_string_pretty(&self)?)?;
         Ok(())
     }
 }
@@ -95,10 +95,10 @@ mod tests {
        let disk_id = DiskId::new();
 
        let entry = dummy_entry(disk_id, "yomama");
-       let mut manifest = Manifest::default();
+       let mut manifest = Manifest::load(&path).unwrap();
 
        manifest.add(entry);
-       manifest.save(&path).unwrap();
+       manifest.save().unwrap();
 
        let manifest_loaded = Manifest::load(&path).unwrap();
 

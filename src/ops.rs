@@ -99,6 +99,24 @@ pub fn offload(
 
 }
 
+pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) {
+
+    // purely mechanical restore, restore_path does policy declaration
+    //
+    // Lookup and cloning out what matches the target path
+    let (rel_path, expected) = {
+        let entry = manifest.entries.iter()
+            .find(|e| e.original_path == target)
+            .ok_or_else(|| //expect() after restore_path handles it)?;
+        (entry.rel_path.clone(), entry.sha256.clone())
+    }
+    // copy blob from mounted disk to target while stream-hashing
+    // compare hash to entry.hash before renaming, if missmatch, throw HashMismatch error
+    // atomically handle symlinks
+    // Retain the manifest and save it
+    // delete the blob from stick
+}
+
 
 
 
