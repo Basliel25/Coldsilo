@@ -26,5 +26,8 @@ pub enum Error {
 
     #[error("Hashmismath on {path} expected: {expected}, found {actual}")]
     HashMismatch{expected: String, actual: String, path: PathBuf},
+
+    #[error("NotOffloaded {0}")]
+    NotOffloaded(PathBuf),
 }
 
