@@ -2,6 +2,7 @@ use crate::error::Error;
 use crate::disk::DiskId;
 use crate::manifest::{Entry, Manifest};
 
+use std::fmt::format;
 use std::fs::{self, File};
 use std::path::Path;
 use std::io::{Read, Write};
@@ -99,7 +100,7 @@ pub fn offload(
 
 }
 
-pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) {
+pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) -> Result<(), Error> {
 
     // purely mechanical restore, restore_path does policy declaration
     //
@@ -107,14 +108,51 @@ pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) {
     let (rel_path, expected) = {
         let entry = manifest.entries.iter()
             .find(|e| e.original_path == target)
-            .ok_or_else(|| //expect() after restore_path handles it)?;
+            .ok_or_else(|| /*expect() after restore_path handles it)*/)?;
         (entry.rel_path.clone(), entry.sha256.clone())
-    }
+    };
+    let blob = disk_mount.join(&rel_path);
     // copy blob from mounted disk to target while stream-hashing
+    let parent = target.parent().ok_or(/*target is a root path?*/todo!())?;
+    let temp = parent.join(format!(
+            ".coldsilo-tmp-{}",
+            target.file_name().unwrap().to_string_lossy()
+
+    ));
+
+    // initalize src and dst
+    let mut src = File::open(&blob)?;
+    let mut dest = File::create_new(&temp)?;
+
+    let mut hasher = Sha256::new();
+    let mut buf = [0u8; 65536];
+    loop {
+        let n = src.read(&mut buf)?;
+        if n == 0 { return Err(Error::SourceNotRegularFile(blob.to_path_buf())) }
+        dest.write_all(&buf[..n])?;
+        hasher.update(&buf[..n]);
+    }
+
+    dest.sync_all()?;
+    let actual = format!("{:x}", hasher.finalize());
+
     // compare hash to entry.hash before renaming, if missmatch, throw HashMismatch error
+    if actual != expected {
+        fs::remove_file(&temp).ok();
+        return Err(Error::HashMismatch {expected, actual, path: blob});
+    }
+
     // atomically handle symlinks
+    fs::rename(&temp, target)?;
+
     // Retain the manifest and save it
+    manifest.entries.retain(|e| e.original_path != target);
+    manifest.save()?;
+
     // delete the blob from stick
+    fs::remove_file(&blob)?;
+
+    Ok(())
 }
 
 
