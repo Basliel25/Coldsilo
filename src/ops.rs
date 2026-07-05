@@ -1,10 +1,9 @@
-use crate::error::Error;
-use crate::disk::DiskId;
+use crate::error::Error; use crate::disk::DiskId;
 use crate::manifest::{Entry, Manifest};
 
 use std::fmt::format;
 use std::fs::{self, File};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::io::{Read, Write};
 use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
@@ -100,7 +99,7 @@ pub fn offload(
 
 }
 
-pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) -> Result<(), Error> {
+pub fn restore(target: &Path, manifest: &mut Manifest, disk_mount: &Path) -> Result<(), Error> {
 
     // purely mechanical restore, restore_path does policy declaration
     //
@@ -108,12 +107,12 @@ pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) -> Result<(
     let (rel_path, expected) = {
         let entry = manifest.entries.iter()
             .find(|e| e.original_path == target)
-            .ok_or_else(|| /*expect() after restore_path handles it)*/)?;
+            .ok_or_else(|| Error::NotOffloaded(target.to_path_buf()))?;
         (entry.rel_path.clone(), entry.sha256.clone())
     };
     let blob = disk_mount.join(&rel_path);
     // copy blob from mounted disk to target while stream-hashing
-    let parent = target.parent().ok_or(/*target is a root path?*/todo!())?;
+    let parent = target.parent().expect("offload target must have a parent dir");
     let temp = parent.join(format!(
             ".coldsilo-tmp-{}",
             target.file_name().unwrap().to_string_lossy()
@@ -128,7 +127,7 @@ pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) -> Result<(
     let mut buf = [0u8; 65536];
     loop {
         let n = src.read(&mut buf)?;
-        if n == 0 { return Err(Error::SourceNotRegularFile(blob.to_path_buf())) }
+        if n == 0 { break; }
         dest.write_all(&buf[..n])?;
         hasher.update(&buf[..n]);
     }
@@ -152,6 +151,19 @@ pub fn restore(target: &Path, manifest: Manifest, disk_mount: &Path) -> Result<(
     // delete the blob from stick
     fs::remove_file(&blob)?;
 
+    Ok(())
+}
+
+pub fn restore_path(
+    target: &Path,
+    scan_roots: &[PathBuf],
+    manifest: &mut Manifest) -> Result<(), Error> {
+
+    // disk Owner of file with disk_id
+    // query and map mounted disks
+    // absent disks is just 'disk not present'
+    // mount disk or else disknotmounted error
+    // if mounted proven hand over token 
     Ok(())
 }
 
