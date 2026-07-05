@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use thiserror::Error as ThisError;
+use crate::disk::DiskId;
 
 #[derive(Debug, ThisError)]
 pub enum Error {
@@ -21,8 +22,8 @@ pub enum Error {
     #[error("Destination {0} already exists")]
     DestinationExists(PathBuf),
     
-    #[error("Disk not mounted: {0}")]
-    DiskNotMounted(PathBuf),
+    #[error("Disk not mounted: {0:?}")]
+    DiskNotMounted(DiskId),
 
     #[error("Hashmismath on {path} expected: {expected}, found {actual}")]
     HashMismatch{expected: String, actual: String, path: PathBuf},

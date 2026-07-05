@@ -1,4 +1,5 @@
-use crate::error::Error; use crate::disk::DiskId;
+use crate::error::Error; 
+use crate::disk::{DiskId, mounted_disks};
 use crate::manifest::{Entry, Manifest};
 
 use std::fmt::format;
@@ -160,13 +161,19 @@ pub fn restore_path(
     manifest: &mut Manifest) -> Result<(), Error> {
 
     // disk Owner of file with disk_id
+    let disk_id = {
+        let entry = manifest.entries.iter()
+        .find(|e| e.original_path == target)
+        .ok_or_else(|| Error::NotOffloaded(target.to_path_buf()))?;
+        entry.disk_id
+    };
+
     // query and map mounted disks
+    let mounted = mounted_disks(scan_roots);
     // absent disks is just 'disk not present'
-    // mount disk or else disknotmounted error
-    // if mounted proven hand over token 
-    Ok(())
+    let disk_mount = mounted
+        .get(&disk_id)
+        .ok_or_else(|| Error::DiskNotMounted(disk_id))?;
+
+    restore(target, manifest, disk_mount)
 }
-
-
-
-
