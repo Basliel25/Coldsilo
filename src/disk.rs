@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+use std::fmt;
 use std::path::{Path, PathBuf};
 
 use serde::{Serialize, Deserialize};
@@ -19,6 +20,12 @@ impl DiskId {
    pub fn new() -> Self {
         DiskId(Uuid::new_v4())
    }
+}
+
+impl fmt::Display for DiskId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{0}", self.0)
+    }
 }
 
 // A marker that lives on the disk
