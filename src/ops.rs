@@ -188,3 +188,17 @@ pub fn indirection_path(data_dir: &Path, disk_id:DiskId) -> PathBuf {
     // an absolute path
     data_dir.join("disks").join(disk_id.to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn indirection_path_test() {
+        let disk_id = DiskId::new();
+        let path = indirection_path(Path::new("/tmp/cs"), disk_id);
+
+        assert_eq!(path.parent().unwrap(), Path::new("/tmp/cs/disks"));
+        assert_eq!(path.file_name().unwrap().to_str().unwrap(), disk_id.to_string());
+    }
+}
