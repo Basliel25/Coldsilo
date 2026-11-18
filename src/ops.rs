@@ -2,13 +2,20 @@ use crate::error::Error;
 use crate::disk::{DiskId, mounted_disks};
 use crate::manifest::{Entry, Manifest};
 
-use std::fmt::format;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 use std::io::{Read, Write};
 use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
 
+// Define a linkstate enum
+#[derive(Debug)]
+pub enum LinkOutcome {
+    Created, 
+    Unchanged, 
+    Repointed, 
+    Failed(Error)
+}
 fn hash_file(path: &Path) -> Result<String, Error> {
 
     let mut file = File::open(path)?;
