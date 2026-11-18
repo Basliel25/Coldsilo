@@ -270,5 +270,11 @@ mod tests {
     }
 
     #[test]
-    fn link_one_rejects_real_directory() {}
+    fn link_one_rejects_real_directory() {
+        let data = tempdir().unwrap();
+        let disk_id = DiskId::new();
+
+        fs::create_dir_all(indirection_path(data.path(), disk_id)).unwrap();
+        assert!(link_one(data.path(), disk_id, Path::new("/mnt/a")).is_err());
+    }
 }
