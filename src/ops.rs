@@ -254,7 +254,20 @@ mod tests {
     }
 
     #[test]
-    fn link_one_repoints_when_mount_moved() {}
+    fn link_one_repoints_when_mount_moved() {
+        let data = tempdir().unwrap();
+        let disk_id = DiskId::new();
+
+        link_one(data.path(), disk_id, Path::new("/mnt/a")).unwrap();
+        let out = link_one(data.path(), disk_id, Path::new("/mnt/b")).unwrap();
+
+        assert!(matches!(out, LinkOutcome::Repointed));
+        assert_eq!(
+            fs::read_link(indirection_path(data.path(), disk_id)).unwrap(),
+            Path::new("/mnt/b")
+        );
+
+    }
 
     #[test]
     fn link_one_rejects_real_directory() {}
