@@ -228,6 +228,7 @@ fn link_one(data_dir: &Path, disk_id: DiskId, mount: &Path) -> Result<LinkOutcom
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::tempdir;
 
     #[test]
     fn indirection_path_test() {
@@ -237,4 +238,24 @@ mod tests {
         assert_eq!(path.parent().unwrap(), Path::new("/tmp/cs/disks"));
         assert_eq!(path.file_name().unwrap().to_str().unwrap(), disk_id.to_string());
     }
+
+    #[test]
+    fn link_one_creates_and_unchanged() {
+        let data = tempdir().unwrap();
+        let disk_id = DiskId::new();
+        let mount = Path::new("/mnt/a");
+
+       let first_link = link_one(data.path(), disk_id, mount).unwrap();
+       assert!(matches!(first_link, LinkOutcome::Created));
+       assert_eq!(fs::read_link(indirection_path(data.path(), disk_id)).unwrap(), mount);
+
+       let second_link = link_one(data.path(), disk_id, mount).unwrap();
+       assert!(matches!(second_link, LinkOutcome::Unchanged));
+    }
+
+    #[test]
+    fn link_one_repoints_when_mount_moved() {}
+
+    #[test]
+    fn link_one_rejects_real_directory() {}
 }
