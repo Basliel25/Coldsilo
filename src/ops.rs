@@ -112,6 +112,7 @@ pub fn restore(target: &Path, manifest: &mut Manifest, disk_mount: &Path) -> Res
         (entry.rel_path.clone(), entry.sha256.clone())
     };
     let blob = disk_mount.join(&rel_path);
+    
     // copy blob from mounted disk to target while stream-hashing
     let parent = target.parent().expect("offload target must have a parent dir");
     let temp = parent.join(format!(
