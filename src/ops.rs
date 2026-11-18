@@ -202,8 +202,27 @@ fn link_one(data_dir: &Path, disk_id: DiskId, mount: &Path) -> Result<LinkOutcom
     if let Some(parent) = link.parent() {
         fs::create_dir_all(parent)?;
     }
-    Ok(LinkOutcome::Created)
 
+    match fs::read_link(&link) {
+        
+        // If nothing is found create it
+        Err(e) if e.kind() == ErrorKind::NotFound => {
+            symlink(mount, &link)?;
+            Ok(LinkOutcome::Created)
+        }
+        // Any other error will be propagated as an input mismatch error
+        Err(e) => Err(e.into()),
+        // Unchanged link remains the same
+        Ok(current) if current.as_path() == mount => Ok(LinkOutcome::Unchanged),
+        // Repoint wrong path by renaming
+        Ok(_) => {
+            let temp = link.with_file_name(format!("{}.tmp", disk_id));
+            fs::remove_file(&temp).ok();
+            symlink(mount, &temp)?;
+            fs::rename(&temp, &link)?;
+            Ok(LinkOutcome::Repointed)
+        }
+    }
 }
 
 #[cfg(test)]
