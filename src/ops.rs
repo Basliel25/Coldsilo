@@ -4,7 +4,8 @@ use crate::manifest::{Entry, Manifest};
 
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
-use std::io::{Read, Write};
+use std::io::{Read, Write, ErrorKind};
+use std::os::unix::fs::symlink;
 use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
 
