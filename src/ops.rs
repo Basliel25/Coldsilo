@@ -197,6 +197,15 @@ pub fn indirection_path(data_dir: &Path, disk_id:DiskId) -> PathBuf {
     data_dir.join("disks").join(disk_id.to_string())
 }
 
+fn link_one(data_dir: &Path, disk_id: DiskId, mount: &Path) -> Result<LinkOutcome, Error> {
+    let link = indirection_path(data_dir, disk_id);
+    if let Some(parent) = link.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    Ok(LinkOutcome::Created)
+
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
