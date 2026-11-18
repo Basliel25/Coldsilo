@@ -178,3 +178,19 @@ pub fn restore_path(
 
     restore(target, manifest, disk_mount)
 }
+
+// A manifest function to handle mismatch of path of middle link between disk and registered offload
+// file
+pub fn indirection_path(data_dir: &Path, disk_id:DiskId) -> PathBuf {
+
+    // Takes the data directory on host disk
+    // merges the available disks in the pool attaches
+    // the disk_id registered by the offload function and returns
+    // an absolute path
+    
+
+
+
+
+
+}
