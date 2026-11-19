@@ -6,6 +6,7 @@ use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 use std::io::{Read, Write, ErrorKind};
 use std::os::unix::fs::symlink;
+use std::collections::HashMap;
 use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
 
@@ -17,6 +18,7 @@ pub enum LinkOutcome {
     Repointed, 
     Failed(Error)
 }
+
 fn hash_file(path: &Path) -> Result<String, Error> {
 
     let mut file = File::open(path)?;
@@ -224,6 +226,11 @@ fn link_one(data_dir: &Path, disk_id: DiskId, mount: &Path) -> Result<LinkOutcom
         }
     }
 }
+
+pub fn refresh_direction(
+    data_dir: &Path, 
+    mounted: &HashMap<DiskId, PathBuf>, 
+    ) -> Vec<(DiskId, LinkOutcome)> {todo!()}
 
 #[cfg(test)]
 mod tests {
