@@ -230,7 +230,18 @@ fn link_one(data_dir: &Path, disk_id: DiskId, mount: &Path) -> Result<LinkOutcom
 pub fn refresh_direction(
     data_dir: &Path, 
     mounted: &HashMap<DiskId, PathBuf>, 
-    ) -> Vec<(DiskId, LinkOutcome)> {todo!()}
+) -> Vec<(DiskId, LinkOutcome)> {
+    mounted
+        .iter()
+        .map(|(disk_id, mount)| {
+            let link_pass = match link_one(data_dir, *disk_id, mount){
+                Ok(o)=>o,
+                Err(e)=>LinkOutcome::Failed(e),
+            };
+            (*disk_id, link_pass)
+        }
+        ).collect()
+}
 
 #[cfg(test)]
 mod tests {
