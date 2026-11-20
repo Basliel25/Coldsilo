@@ -295,6 +295,9 @@ mod tests {
         fs::create_dir_all(indirection_path(data.path(), disk_id)).unwrap();
         assert!(link_one(data.path(), disk_id, Path::new("/mnt/a")).is_err());
     }
+    fn outcome_for(out: &[(DiskId, LinkOutcome)], id: DiskId) -> &LinkOutcome {
+        &out.iter().find(|(i, _)| *i == id).unwrap().1
+    }
     #[test]
     fn refresh_idempotent() {
         let data = tempdir().unwrap();
@@ -305,11 +308,12 @@ mod tests {
         ]);
 
         let first_disk = refresh_direction(data.path(), &mounted);
-        assert!(matches!(&first_disk.iter().find(|(i, _)| *i== a)).unwrap().1, LinkOutcome::Created);
-        assert!(matches!(&first_disk.iter().find(|(i, _)| *i== b)).unwrap().1, LinkOutcome::Created);
+        assert!(matches!(outcome_for(&first_disk, disk_a), LinkOutcome::Created));
+        assert!(matches!(outcome_for(&first_disk, disk_b), LinkOutcome::Created));
 
-
-
+        let second_disk = refresh_direction(data.path(), &mounted);
+        assert!(matches!(outcome_for(&second_disk, disk_a), LinkOutcome::Unchanged));
+        assert!(matches!(outcome_for(&second_disk, disk_b), LinkOutcome::Unchanged));
     }
 
     #[test]
