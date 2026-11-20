@@ -295,4 +295,12 @@ mod tests {
         fs::create_dir_all(indirection_path(data.path(), disk_id)).unwrap();
         assert!(link_one(data.path(), disk_id, Path::new("/mnt/a")).is_err());
     }
+    #[test]
+    fn refresh_idempotent() {todo!()}
+
+    #[test]
+    fn refresh_handles_absent_disk() {todo!()}
+
+    #[test]
+    fn refresh_one_bad_disk_dont_affect_pool() {todo!()}
 }
