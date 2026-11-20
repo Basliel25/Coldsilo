@@ -296,7 +296,21 @@ mod tests {
         assert!(link_one(data.path(), disk_id, Path::new("/mnt/a")).is_err());
     }
     #[test]
-    fn refresh_idempotent() {todo!()}
+    fn refresh_idempotent() {
+        let data = tempdir().unwrap();
+        let (disk_a, disk_b) = (DiskId::new(), DiskId::new());
+        let mounted = HashMap:: from([
+            (disk_a, PathBuf::from("/mnt/a")),
+            (disk_b, PathBuf::from("/mnt/b"))
+        ]);
+
+        let first_disk = refresh_direction(data.path(), &mounted);
+        assert!(matches!(&first_disk.iter().find(|(i, _)| *i== a)).unwrap().1, LinkOutcome::Created);
+        assert!(matches!(&first_disk.iter().find(|(i, _)| *i== b)).unwrap().1, LinkOutcome::Created);
+
+
+
+    }
 
     #[test]
     fn refresh_handles_absent_disk() {todo!()}
