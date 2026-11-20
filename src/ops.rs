@@ -333,5 +333,19 @@ mod tests {
     }
 
     #[test]
-    fn refresh_one_bad_disk_dont_affect_pool() {todo!()}
+    fn refresh_one_bad_disk_dont_affect_pool() {
+        let data = tempdir().unwrap();
+        let (good_disk, bad_disk) = (DiskId::new(), DiskId::new());
+        fs::create_dir_all(indirection_path(data.path(), bad_disk)).unwrap();
+
+        let mounted = HashMap::from([
+            (good_disk, PathBuf::from("/mnt/good")),
+            (bad_disk, PathBuf::from("/mnt/bad"))
+        ]);
+
+        let out = refresh_direction(data.path(), &mounted);
+
+        assert!(matches!(outcome_for(&out, good_disk), LinkOutcome::Created));
+        assert!(matches!(outcome_for(&out, bad_disk), LinkOutcome::Failed(_)));
+    }
 }
