@@ -317,7 +317,20 @@ mod tests {
     }
 
     #[test]
-    fn refresh_handles_absent_disk() {todo!()}
+    fn refresh_handles_absent_disk() {
+        let data = tempdir().unwrap();
+        let (disk_a, absent_disk) = (DiskId::new(), DiskId::new());
+
+        link_one(data.path(), absent_disk, Path::new("/mnt/gone")).unwrap();
+        let mounted = HashMap::from([(disk_a, PathBuf::from("/mnt/a"))]);
+        let out = refresh_direction(data.path(), &mounted);
+
+        assert_eq!(out.len(), 1);
+        assert_eq!(
+            fs::read_link(indirection_path(data.path(), absent_disk)).unwrap(), 
+            Path::new("/mnt/gone")
+        );
+    }
 
     #[test]
     fn refresh_one_bad_disk_dont_affect_pool() {todo!()}
